@@ -4,5 +4,6 @@ resolver = "2"
 members = [
 "common",
 "day01",
+"day02",
 # placeholder
 ]
