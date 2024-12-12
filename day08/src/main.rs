@@ -21,7 +21,7 @@ struct Grid {
 }
 
 impl Grid {
-    fn antinodes(&self) -> HashSet<Position> {
+    fn antinodes_part1(&self) -> HashSet<Position> {
         let mut antinodes = HashSet::new();
         for antena_type in self.map.keys() {
             let antena_positions = self.map.get(antena_type).unwrap();
@@ -37,6 +37,49 @@ impl Grid {
                     col: pair[0].col - dx,
                     row: pair[0].row - dy,
                 });
+            }
+        }
+        antinodes.retain(|p| p.col >= 0 && p.col < self.width && p.row >= 0 && p.row < self.height);
+
+        antinodes
+    }
+
+    fn antinodes_part2(&self) -> HashSet<Position> {
+        let mut antinodes = HashSet::new();
+        for antena_type in self.map.keys() {
+            let antena_positions = self.map.get(antena_type).unwrap();
+            let combinations = antena_positions.iter().combinations(2).collect::<Vec<_>>();
+            for pair in combinations {
+                let dx: i64 = pair[1].col - pair[0].col;
+                let dy: i64 = pair[1].row - pair[0].row;
+                let mut pos = pair[0].clone();
+                if dx.abs() < dy.abs() {
+                    // iterate by dx
+                    while pos.col < self.width && pos.col >= 0 {
+                        antinodes.insert(pos);
+                        pos.col -= dx;
+                        pos.row -= dy;
+                    }
+                    pos = pair[1].clone();
+                    while pos.col < self.width && pos.col >= 0 {
+                        antinodes.insert(pos);
+                        pos.col += dx;
+                        pos.row += dy;
+                    }
+                } else {
+                    // iterate by dy
+                    while pos.row < self.height && pos.row >= 0 {
+                        antinodes.insert(pos);
+                        pos.col -= dx;
+                        pos.row -= dy;
+                    }
+                    pos = pair[1].clone();
+                    while pos.row < self.height && pos.row >= 0 {
+                        antinodes.insert(pos);
+                        pos.col += dx;
+                        pos.row += dy;
+                    }
+                }
             }
         }
         antinodes.retain(|p| p.col >= 0 && p.col < self.width && p.row >= 0 && p.row < self.height);
@@ -86,11 +129,16 @@ fn part1() {
         .collect::<Vec<_>>()
         .join("\n");
     let grid: Grid = grid_lines.parse().unwrap();
-    println!("{:?}", grid.antinodes().len());
+    println!("{:?}", grid.antinodes_part1().len());
 }
 
 fn part2() {
-    let lines = read_lines("./day08/input").unwrap().collect::<Vec<_>>();
+    let grid_lines: String = read_lines("./day08/input")
+        .unwrap()
+        .collect::<Vec<_>>()
+        .join("\n");
+    let grid: Grid = grid_lines.parse().unwrap();
+    println!("{:?}", grid.antinodes_part2().len());
 }
 fn main() {
     part1();
