@@ -1,8 +1,13 @@
-use std::{collections::VecDeque, iter::zip, str::FromStr};
+use std::{
+    collections::{HashSet, VecDeque},
+    hash::Hash,
+    iter::zip,
+    str::FromStr,
+};
 
 use common::read_lines;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq)]
 struct Node {
     col: i32,
     row: i32,
@@ -40,10 +45,10 @@ impl TopoMap {
         return neighbors;
     }
 
-    fn count_trails(&self, node: &Node, counts: &mut Vec<i32>) {
+    fn count_trails(&self, node: &Node, counts: &mut Vec<HashSet<Node>>) {
         let idx = (node.col + node.row * self.width) as usize;
         if node.height == 9 {
-            counts[idx] = 1;
+            counts[idx].insert(node.clone());
             println!("counts[{:?}]=1", idx);
         } else {
             // number of trails that pass through this node
@@ -51,14 +56,16 @@ impl TopoMap {
                 .get_neighbors(node)
                 .iter()
                 .filter(|n| n.height == node.height + 1)
-                .map(|n| counts[(n.col + n.row * self.width) as usize])
-                .sum();
-            println!("counts[{:?}]={:?}", idx, counts[idx]);
+                .map(|n| counts[(n.col + n.row * self.width) as usize].clone())
+                .flatten()
+                .collect();
+
+            println!("counts[{:?}]={:?}", idx, counts[idx].len());
         }
     }
-    fn count_all_trails(&self) -> Vec<i32> {
+    fn count_all_trails(&self) -> Vec<HashSet<Node>> {
         let mut counts = vec![];
-        counts.resize((self.height * self.width) as usize, 0);
+        counts.resize((self.height * self.width) as usize, HashSet::new());
         for height in (0..10).rev() {
             println!("counting for height: {}", height);
             let height_nodes = self.nodes.iter().filter(|n| n.height == height);
@@ -102,7 +109,7 @@ impl FromStr for TopoMap {
 }
 
 fn part1() {
-    let grid_lines: String = read_lines("./day10/example")
+    let grid_lines: String = read_lines("./day10/input")
         .unwrap()
         .collect::<Vec<_>>()
         .join("\n");
@@ -112,7 +119,7 @@ fn part1() {
     // for (node, count) in
     let num_trails: i32 = zip(topo_map.nodes, counts)
         .filter(|(n, _)| n.height == 0)
-        .map(|(_, count)| count)
+        .map(|(_, count)| count.len() as i32)
         .sum();
     println!("{}", num_trails);
 }
