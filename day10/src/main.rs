@@ -75,6 +75,32 @@ impl TopoMap {
         }
         return counts;
     }
+
+    fn count_trails_part2(&self, node: &Node, counts: &mut Vec<i32>) {
+        let idx = (node.col + node.row * self.width) as usize;
+        if node.height == 9 {
+            counts[idx] = 1;
+        } else {
+            // number of trails that pass through this node
+            counts[idx] = self
+                .get_neighbors(node)
+                .iter()
+                .filter(|n| n.height == node.height + 1)
+                .map(|n| counts[(n.col + n.row * self.width) as usize])
+                .sum();
+        }
+    }
+    fn count_all_trails_part2(&self) -> Vec<i32> {
+        let mut counts = vec![];
+        counts.resize((self.height * self.width) as usize, 0);
+        for height in (0..10).rev() {
+            let height_nodes = self.nodes.iter().filter(|n| n.height == height);
+            for node in height_nodes {
+                self.count_trails_part2(node, &mut counts);
+            }
+        }
+        return counts;
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -125,7 +151,18 @@ fn part1() {
 }
 
 fn part2() {
-    let lines = read_lines("./day10/input").unwrap().collect::<Vec<_>>();
+    let grid_lines: String = read_lines("./day10/input")
+        .unwrap()
+        .collect::<Vec<_>>()
+        .join("\n");
+    let topo_map: TopoMap = grid_lines.parse().unwrap();
+    let counts = topo_map.count_all_trails_part2();
+
+    let num_trails: i32 = zip(topo_map.nodes, counts)
+        .filter(|(n, _)| n.height == 0)
+        .map(|(_, count)| count)
+        .sum();
+    println!("{}", num_trails);
 }
 fn main() {
     part1();
