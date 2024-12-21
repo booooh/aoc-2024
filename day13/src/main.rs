@@ -2,17 +2,17 @@ use common::read_lines;
 use regex::Regex;
 use std::str::FromStr;
 
-type Button = (i32, i32);
+type Button = (i64, i64);
 
 #[derive(Debug, PartialEq, PartialOrd)]
 struct ClawMachine {
     button_a: Button,
     button_b: Button,
-    prize: (i32, i32),
+    prize: (i64, i64),
 }
 
 impl ClawMachine {
-    fn new(button_a: Button, button_b: Button, prize: (i32, i32)) -> Self {
+    fn new(button_a: Button, button_b: Button, prize: (i64, i64)) -> Self {
         Self {
             button_a,
             button_b,
@@ -20,7 +20,7 @@ impl ClawMachine {
         }
     }
 
-    fn solve(&self) -> (i32, i32) {
+    fn solve(&self) -> (i64, i64) {
         let det = (self.button_a.0 * self.button_b.1) - (self.button_a.1 * self.button_b.0);
         let m = ((self.button_b.1 * self.prize.0) - (self.button_b.0 * self.prize.1)) / det;
         let n = ((-self.button_a.1 * self.prize.0) + (self.button_a.0 * self.prize.1)) / det;
@@ -31,11 +31,10 @@ impl ClawMachine {
         {
             return (-1, -1);
         }
-
         return (m, n);
     }
 
-    fn cost(&self) -> Option<i32> {
+    fn cost(&self) -> Option<i64> {
         match self.solve() {
             (-1, -1) => None,
             (m, n) => Some(3 * m + n),
@@ -45,6 +44,9 @@ impl ClawMachine {
 
 #[derive(Debug)]
 struct ClawMachineErr;
+
+// static OFFSET: i64 = 10000000000000;
+static mut OFFSET: i64 = 0;
 
 impl FromStr for ClawMachine {
     type Err = ClawMachineErr;
@@ -62,11 +64,17 @@ impl FromStr for ClawMachine {
             .extract::<6>()
             .1
             .iter()
-            .map(|x| x.parse::<i32>().unwrap())
+            .map(|x| x.parse::<i64>().unwrap())
             .collect::<Vec<_>>()
             .try_into()
             .unwrap();
-        return Ok(ClawMachine::new((a_x, a_y), (b_x, b_y), (prize_x, prize_y)));
+        unsafe {
+            return Ok(ClawMachine::new(
+                (a_x, a_y),
+                (b_x, b_y),
+                (prize_x + OFFSET, prize_y + OFFSET),
+            ));
+        }
     }
 }
 
@@ -92,8 +100,20 @@ fn part1() {
 
 fn part2() {
     let lines = read_lines("./day13/input").unwrap().collect::<Vec<_>>();
+    unsafe {
+        OFFSET = 10000000000000;
+    }
+    let machines = parse_input(&lines);
+
+    let mut total_cost = 0;
+    for m in machines {
+        if let Some(cost) = m.cost() {
+            total_cost += cost;
+        }
+    }
+    println!("{:?}", total_cost);
 }
 fn main() {
     part1();
-    part2()
+    part2();
 }
