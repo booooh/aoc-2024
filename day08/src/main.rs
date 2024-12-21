@@ -1,6 +1,5 @@
 use itertools::Itertools;
 use std::{
-    cmp,
     collections::{HashMap, HashSet},
     str::FromStr,
 };
@@ -52,7 +51,7 @@ impl Grid {
             for pair in combinations {
                 let dx: i64 = pair[1].col - pair[0].col;
                 let dy: i64 = pair[1].row - pair[0].row;
-                let mut pos = pair[0].clone();
+                let mut pos = *pair[0];
                 if dx.abs() < dy.abs() {
                     // iterate by dx
                     while pos.col < self.width && pos.col >= 0 {
@@ -60,7 +59,7 @@ impl Grid {
                         pos.col -= dx;
                         pos.row -= dy;
                     }
-                    pos = pair[1].clone();
+                    pos = *pair[1];
                     while pos.col < self.width && pos.col >= 0 {
                         antinodes.insert(pos);
                         pos.col += dx;
@@ -73,7 +72,7 @@ impl Grid {
                         pos.col -= dx;
                         pos.row -= dy;
                     }
-                    pos = pair[1].clone();
+                    pos = *pair[1];
                     while pos.row < self.height && pos.row >= 0 {
                         antinodes.insert(pos);
                         pos.col += dx;

@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use common::read_lines;
 
@@ -20,16 +20,16 @@ fn part1() {
             let factor = 10_u32.pow(num_digits / 2) as i64;
             return Some(vec![curr_val / factor, curr_val % factor]);
         }
-        return None;
+        None
     }
 
     fn rule_3(stones: &Vec<i64>, idx: usize) -> Vec<i64> {
-        return vec![stones[idx] * 2024];
+        vec![stones[idx] * 2024]
     }
 
     fn blink_stone(stones: &Vec<i64>, idx: usize) -> Vec<i64> {
         if let Some(stone) = rule_1(stones, idx) {
-            return stone;
+            stone
         } else if let Some(stone) = rule_2(stones, idx) {
             return stone;
         } else {
@@ -38,10 +38,9 @@ fn part1() {
     }
 
     fn blink(stones: &Vec<i64>) -> Vec<i64> {
-        return (0..stones.len())
-            .map(|idx| blink_stone(stones, idx))
-            .flatten()
-            .collect();
+        (0..stones.len())
+            .flat_map(|idx| blink_stone(stones, idx))
+            .collect()
     }
     for b in 0..25 {
         stones = blink(&stones);
@@ -57,11 +56,11 @@ fn part2() {
     }
 
     let lines = read_lines("./day11/input").unwrap().collect::<Vec<_>>();
-    let mut stones: Vec<Stone> = lines[0]
+    let stones: Vec<Stone> = lines[0]
         .split(" ")
         .map(|s| s.parse().unwrap())
         .map(|value| Stone {
-            value: value,
+            value,
             orig_id: value,
         })
         .collect();
@@ -92,19 +91,19 @@ fn part2() {
                 },
             ]);
         }
-        return None;
+        None
     }
 
     fn rule_3(stone: &Stone) -> Vec<Stone> {
-        return vec![Stone {
+        vec![Stone {
             value: stone.value * 2024,
             orig_id: stone.value,
-        }];
+        }]
     }
 
     fn blink_stone(stone: &Stone) -> Vec<Stone> {
         if let Some(stone) = rule_1(stone) {
-            return stone;
+            stone
         } else if let Some(stone) = rule_2(stone) {
             return stone;
         } else {
@@ -133,7 +132,7 @@ fn part2() {
         cache.insert((stone.value, num_blinks), total);
         // println!("{}: done with iter {}", stone.value, num_blinks);
 
-        return cache;
+        cache
 
         // since it wasn't in the cache previously, add it
     }
@@ -156,7 +155,7 @@ fn part2() {
 
     let mut part2_total = 0_usize;
     for stone in &stones {
-        cache = blink_num_iter(&stone, 75, cache);
+        cache = blink_num_iter(stone, 75, cache);
         let tmp = cache.get(&(stone.value, 75)).unwrap();
         part2_total += *tmp;
     }

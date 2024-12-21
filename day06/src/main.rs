@@ -1,4 +1,3 @@
-use core::num;
 use std::{collections::HashSet, hash::Hash};
 
 use common::read_lines;
@@ -17,7 +16,7 @@ enum Direction {
     LEFT = 3,
 }
 
-const directions: &'static [Direction] = &[
+const directions: &[Direction] = &[
     Direction::UP,
     Direction::RIGHT,
     Direction::DOWN,
@@ -74,14 +73,14 @@ impl Map {
             .next()
             .unwrap();
 
-        return (
+        (
             Map {
                 obstacles,
                 width,
                 height,
             },
             guard,
-        );
+        )
     }
 }
 
@@ -125,7 +124,7 @@ impl Guard {
             return None;
         }
 
-        return Some(next_pos);
+        Some(next_pos)
     }
 
     fn next_move(&mut self, map: &Map) -> MoveResult {

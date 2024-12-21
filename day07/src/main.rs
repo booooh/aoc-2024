@@ -1,5 +1,5 @@
-use itertools::{zip_eq, Itertools};
-use std::{collections::VecDeque, str::FromStr};
+use itertools::Itertools;
+use std::str::FromStr;
 
 use common::read_lines;
 
@@ -21,7 +21,7 @@ fn part1() {
 
         fn eval_permutation(&self, perm: &Vec<Op>) -> i64 {
             let mut cur_res = self.operands[0];
-            let zip_iter = (&self.operands[1..]).iter().zip(perm.iter());
+            let zip_iter = self.operands[1..].iter().zip(perm.iter());
 
             for (&rhs, &op) in zip_iter {
                 cur_res = op(cur_res, rhs);
@@ -32,12 +32,12 @@ fn part1() {
 
         fn permutations(&self) -> Vec<Vec<Op>> {
             let ops = [i64::wrapping_add, i64::wrapping_mul];
-            let operations_permutations = (0..self.operands.len() - 1)
+            
+
+            (0..self.operands.len() - 1)
                 .map(|_| (0..2).map(|i| ops[i]))
                 .multi_cartesian_product()
-                .collect::<Vec<_>>();
-
-            return operations_permutations;
+                .collect::<Vec<_>>()
         }
     }
 
@@ -58,7 +58,7 @@ fn part1() {
         }
     }
 
-    let mut equations: Vec<EquationLine> = read_lines("./day07/input")
+    let equations: Vec<EquationLine> = read_lines("./day07/input")
         .unwrap()
         .map(|l| l.parse().unwrap())
         .collect();
@@ -75,7 +75,7 @@ fn part1() {
 fn part2() {
     fn concat(lhs: i64, rhs: i64) -> i64 {
         let factor = 10_i64.pow(rhs.ilog10() + 1);
-        return (lhs * factor) + rhs;
+        (lhs * factor) + rhs
     }
     #[derive(Debug)]
     struct EquationLine {
@@ -92,7 +92,7 @@ fn part2() {
 
         fn eval_permutation(&self, perm: &Vec<Op>) -> i64 {
             let mut cur_res = self.operands[0];
-            let zip_iter = (&self.operands[1..]).iter().zip(perm.iter());
+            let zip_iter = self.operands[1..].iter().zip(perm.iter());
 
             for (&rhs, &op) in zip_iter {
                 cur_res = op(cur_res, rhs);
@@ -103,12 +103,12 @@ fn part2() {
 
         fn permutations(&self) -> Vec<Vec<Op>> {
             let ops = [i64::wrapping_add, i64::wrapping_mul, concat];
-            let operations_permutations = (0..self.operands.len() - 1)
+            
+
+            (0..self.operands.len() - 1)
                 .map(|_| (0..3).map(|i| ops[i]))
                 .multi_cartesian_product()
-                .collect::<Vec<_>>();
-
-            return operations_permutations;
+                .collect::<Vec<_>>()
         }
     }
 
@@ -129,7 +129,7 @@ fn part2() {
         }
     }
 
-    let mut equations: Vec<EquationLine> = read_lines("./day07/input")
+    let equations: Vec<EquationLine> = read_lines("./day07/input")
         .unwrap()
         .map(|l| l.parse().unwrap())
         .collect();

@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashSet, VecDeque},
+    collections::HashSet,
     hash::Hash,
     iter::zip,
     str::FromStr,
@@ -37,18 +37,16 @@ impl TopoMap {
 
         let neighbors: Vec<_> = STEP
             .iter()
-            .map(|(dx, dy)| self.get_node(node.col + dx, node.row + dy))
-            .filter(|x| x.is_some())
-            .map(|n| n.unwrap())
+            .filter_map(|(dx, dy)| self.get_node(node.col + dx, node.row + dy))
             .collect();
 
-        return neighbors;
+        neighbors
     }
 
     fn count_trails(&self, node: &Node, counts: &mut Vec<HashSet<Node>>) {
         let idx = (node.col + node.row * self.width) as usize;
         if node.height == 9 {
-            counts[idx].insert(node.clone());
+            counts[idx].insert(*node);
             println!("counts[{:?}]=1", idx);
         } else {
             // number of trails that pass through this node
@@ -56,8 +54,7 @@ impl TopoMap {
                 .get_neighbors(node)
                 .iter()
                 .filter(|n| n.height == node.height + 1)
-                .map(|n| counts[(n.col + n.row * self.width) as usize].clone())
-                .flatten()
+                .flat_map(|n| counts[(n.col + n.row * self.width) as usize].clone())
                 .collect();
 
             println!("counts[{:?}]={:?}", idx, counts[idx].len());
@@ -73,7 +70,7 @@ impl TopoMap {
                 self.count_trails(node, &mut counts);
             }
         }
-        return counts;
+        counts
     }
 
     fn count_trails_part2(&self, node: &Node, counts: &mut Vec<i32>) {
@@ -99,7 +96,7 @@ impl TopoMap {
                 self.count_trails_part2(node, &mut counts);
             }
         }
-        return counts;
+        counts
     }
 }
 
@@ -126,11 +123,11 @@ impl FromStr for TopoMap {
             }
         }
 
-        return Ok(TopoMap {
+        Ok(TopoMap {
             nodes,
             height,
             width,
-        });
+        })
     }
 }
 

@@ -5,7 +5,7 @@ use regex::Regex;
 fn part1() {
     let instructions = read_lines("./day03/input").unwrap().collect::<String>();
     let mul_pattern = r"mul\(([0-9]+),([0-9]+)\)";
-    let mul_re = Regex::new(&mul_pattern).unwrap();
+    let mul_re = Regex::new(mul_pattern).unwrap();
     let mul_iter = mul_re.captures_iter(&instructions).map(|m| m.extract());
     let mut total = 0;
 
@@ -19,7 +19,7 @@ fn part1() {
 fn part2() {
     let instructions = read_lines("./day03/input").unwrap().collect::<String>();
     let mul_pattern = r"don't|do|mul\(([0-9]+),([0-9]+)\)";
-    let mul_re = Regex::new(&mul_pattern).unwrap();
+    let mul_re = Regex::new(mul_pattern).unwrap();
     let mul_iter = mul_re.captures_iter(&instructions);
     let mut total = 0;
 

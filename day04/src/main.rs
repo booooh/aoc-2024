@@ -16,16 +16,14 @@ fn part1() {
     let word_to_find = "XMAS".chars().collect::<Vec<_>>();
     let word_len = word_to_find.len() as i32;
     let first_letter = word_to_find[0];
-    let directions = vec![
-        (0, -1),
+    let directions = [(0, -1),
         (0, 1),
         (1, 0),
         (1, -1),
         (1, 1),
         (-1, 0),
         (-1, 1),
-        (-1, -1),
-    ];
+        (-1, -1)];
 
     fn is_applicable(
         step: &(i32, i32),
@@ -37,7 +35,7 @@ fn part1() {
         let final_x = index.0 + (step.0 * (word_len - 1));
         let final_y = index.1 + (step.1 * (word_len - 1));
 
-        return final_x < width && final_y < height && final_x >= 0 && final_y >= 0;
+        final_x < width && final_y < height && final_x >= 0 && final_y >= 0
     }
 
     fn word_chars(
@@ -95,7 +93,7 @@ fn part2() {
     let word_to_find = "MAS".chars().collect::<Vec<_>>();
     let word_len = word_to_find.len() as i32;
     let first_letter = word_to_find[0];
-    let directions = vec![(1, -1), (1, 1), (-1, 1), (-1, -1)];
+    let directions = [(1, -1), (1, 1), (-1, 1), (-1, -1)];
 
     fn is_applicable(
         step: &(i32, i32),
@@ -107,7 +105,7 @@ fn part2() {
         let final_x = index.0 + (step.0 * (word_len - 1));
         let final_y = index.1 + (step.1 * (word_len - 1));
 
-        return final_x < width && final_y < height && final_x >= 0 && final_y >= 0;
+        final_x < width && final_y < height && final_x >= 0 && final_y >= 0
     }
 
     fn word_chars(

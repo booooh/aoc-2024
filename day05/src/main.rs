@@ -35,15 +35,15 @@ where
            return L   (a topologically sorted order)
     */
     for edge in edges {
-        (*edges_by_source.entry(edge.0).or_insert(HashSet::default())).insert(edge.1);
-        edges_by_source.entry(edge.1).or_insert(HashSet::default());
-        (*edges_by_dest.entry(edge.1).or_insert(HashSet::default())).insert(edge.0);
-        edges_by_dest.entry(edge.0).or_insert(HashSet::default());
+        (*edges_by_source.entry(edge.0).or_default()).insert(edge.1);
+        edges_by_source.entry(edge.1).or_default();
+        (*edges_by_dest.entry(edge.1).or_default()).insert(edge.0);
+        edges_by_dest.entry(edge.0).or_default();
     }
 
     let mut no_incoming_edges_q = edges_by_dest
         .iter()
-        .filter(|(_, edges)| edges.len() == 0)
+        .filter(|(_, edges)| edges.is_empty())
         .map(|(&dest, _)| dest)
         .collect::<VecDeque<_>>();
 
@@ -70,18 +70,18 @@ where
         }
     }
 
-    if edges_by_source.len() > 0 {
+    if !edges_by_source.is_empty() {
         panic!("There were still edges in the graph!");
     }
 
-    return sorted_list;
+    sorted_list
 }
 
 fn part1() {
     let day_input = read_lines("./day05/input").unwrap().collect::<Vec<_>>();
     let page_ordering_rules = day_input
         .iter()
-        .take_while(|&line| line.len() > 0)
+        .take_while(|&line| !line.is_empty())
         .map(|line| line.split_once("|").unwrap())
         .map(|(a, b)| Edge(a.parse::<i32>().unwrap(), b.parse().unwrap()))
         .collect::<Vec<_>>();
@@ -90,7 +90,7 @@ fn part1() {
 
     let updates = day_input
         .iter()
-        .skip_while(|line| line.len() > 0)
+        .skip_while(|line| !line.is_empty())
         .skip(1)
         .map(|s| {
             s.split(",")
@@ -102,8 +102,7 @@ fn part1() {
     fn is_correct_order(update: &Vec<i32>, ordering: &Vec<i32>) -> bool {
         let applicable_pages = update
             .iter()
-            .filter(|page| ordering.contains(page))
-            .map(|p| *p)
+            .filter(|page| ordering.contains(page)).copied()
             .collect::<Vec<_>>();
         // println!(
         //     "{:?}, {:?} == {}",
@@ -111,7 +110,7 @@ fn part1() {
         //     ordering,
         //     &applicable_pages == ordering
         // );
-        return &applicable_pages == ordering;
+        &applicable_pages == ordering
     }
 
     let mut res = 0i32;
@@ -133,7 +132,7 @@ fn part2() {
     let day_input = read_lines("./day05/input").unwrap().collect::<Vec<_>>();
     let page_ordering_rules = day_input
         .iter()
-        .take_while(|&line| line.len() > 0)
+        .take_while(|&line| !line.is_empty())
         .map(|line| line.split_once("|").unwrap())
         .map(|(a, b)| Edge(a.parse::<i32>().unwrap(), b.parse().unwrap()))
         .collect::<Vec<_>>();
@@ -142,7 +141,7 @@ fn part2() {
 
     let updates = day_input
         .iter()
-        .skip_while(|line| line.len() > 0)
+        .skip_while(|line| !line.is_empty())
         .skip(1)
         .map(|s| {
             s.split(",")
@@ -154,10 +153,9 @@ fn part2() {
     fn is_correct_order(update: &Vec<i32>, ordering: &Vec<i32>) -> bool {
         let applicable_pages = update
             .iter()
-            .filter(|page| ordering.contains(page))
-            .map(|p| *p)
+            .filter(|page| ordering.contains(page)).copied()
             .collect::<Vec<_>>();
-        return &applicable_pages == ordering;
+        &applicable_pages == ordering
     }
 
     let mut res = 0i32;

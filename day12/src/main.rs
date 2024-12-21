@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet, VecDeque},
+    collections::{HashSet, VecDeque},
     str::FromStr,
 };
 
@@ -49,38 +49,38 @@ fn part1() {
     impl Gardens {
         fn get(&self, location: &Point) -> char {
             let idx = location.0 + location.1 * self.width;
-            return self.plots[idx as usize];
+            self.plots[idx as usize]
         }
 
         fn get_neighbor_plant_plots(&self, location: &Point) -> VecDeque<PlantPlot> {
             let mut neighbors = vec![];
-            if (location.0 > 0) {
+            if location.0 > 0 {
                 neighbors.push(Point(location.0 - 1, location.1));
             }
 
-            if (location.0 < self.width - 1) {
+            if location.0 < self.width - 1 {
                 neighbors.push(Point(location.0 + 1, location.1));
             }
 
-            if (location.1 > 0) {
+            if location.1 > 0 {
                 neighbors.push(Point(location.0, location.1 - 1));
             }
 
-            if (location.1 < self.width - 1) {
+            if location.1 < self.width - 1 {
                 neighbors.push(Point(location.0, location.1 + 1));
             }
 
-            return neighbors
+            neighbors
                 .iter()
                 .map(|p| PlantPlot {
                     location: *p,
                     plant: self.get(p),
                 })
-                .collect();
+                .collect()
         }
 
         fn get_region(&self, location: &Point) -> Region {
-            let plant = self.get(&location);
+            let plant = self.get(location);
             let mut plot = HashSet::<Point>::new();
 
             let mut candidates = HashSet::new();
@@ -106,20 +106,20 @@ fn part1() {
                 candidates.extend(neighbor_locations);
             }
 
-            return Region {
-                plant: plant,
+            Region {
+                plant,
                 plots: plot,
-            };
+            }
         }
     }
 
     impl Region {
         fn area(&self) -> usize {
-            return self.plots.len();
+            self.plots.len()
         }
 
         fn perimeter(&self, garden: &Gardens) -> usize {
-            return self.num_neighbors_out_of_region(garden);
+            self.num_neighbors_out_of_region(garden)
         }
 
         fn num_neighbors_out_of_region(&self, garden: &Gardens) -> usize {
@@ -134,7 +134,7 @@ fn part1() {
                     .len();
             }
 
-            return num_neighbors_out;
+            num_neighbors_out
         }
     }
     let garden: Gardens = lines.parse().unwrap();
@@ -211,34 +211,34 @@ fn part2() {
     impl Gardens {
         fn get(&self, location: &Point) -> char {
             let idx = location.0 + location.1 * self.width;
-            return self.plots[idx as usize];
+            self.plots[idx as usize]
         }
 
         fn get_neighbor_plant_plots(&self, location: &Point) -> VecDeque<PlantPlot> {
             let mut neighbors = vec![];
-            if (location.0 > 0) {
+            if location.0 > 0 {
                 neighbors.push(Point(location.0 - 1, location.1));
             }
 
-            if (location.0 < self.width - 1) {
+            if location.0 < self.width - 1 {
                 neighbors.push(Point(location.0 + 1, location.1));
             }
 
-            if (location.1 > 0) {
+            if location.1 > 0 {
                 neighbors.push(Point(location.0, location.1 - 1));
             }
 
-            if (location.1 < self.width - 1) {
+            if location.1 < self.width - 1 {
                 neighbors.push(Point(location.0, location.1 + 1));
             }
 
-            return neighbors
+            neighbors
                 .iter()
                 .map(|p| PlantPlot {
                     location: *p,
                     plant: self.get(p),
                 })
-                .collect();
+                .collect()
         }
 
         fn get_neighbors_in_region(&self, location: &Point) -> NeighborMap {
@@ -249,16 +249,16 @@ fn part2() {
 
                 if loc_x >= 0 && loc_x < self.width && loc_y >= 0 && loc_y < self.width {
                     let np = Point(loc_x, loc_y);
-                    if self.get(&np) == self.get(&location) {
+                    if self.get(&np) == self.get(location) {
                         neighbors.insert(delta);
                     }
                 }
             }
-            return neighbors;
+            neighbors
         }
 
         fn get_region(&self, location: &Point) -> Region {
-            let plant = self.get(&location);
+            let plant = self.get(location);
             let mut plot = HashSet::<Point>::new();
 
             let mut candidates = HashSet::new();
@@ -284,20 +284,20 @@ fn part2() {
                 candidates.extend(neighbor_locations);
             }
 
-            return Region {
-                plant: plant,
+            Region {
+                plant,
                 plots: plot,
-            };
+            }
         }
     }
 
     impl Region {
         fn area(&self) -> usize {
-            return self.plots.len();
+            self.plots.len()
         }
 
         fn perimeter(&self, garden: &Gardens) -> usize {
-            return self.num_sides(garden);
+            self.num_sides(garden)
         }
 
         fn num_sides(&self, garden: &Gardens) -> usize {
@@ -357,7 +357,7 @@ fn part2() {
                 }
             }
 
-            return num_corners;
+            num_corners
         }
     }
     let garden: Gardens = lines.parse().unwrap();
