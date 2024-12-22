@@ -96,6 +96,29 @@ fn part1() {
 
 fn part2() {
     let lines = read_lines("./day14/input").unwrap().collect::<Vec<_>>();
+    let mut robots: Vec<Robot> = lines.iter().map(|l| l.parse().unwrap()).collect();
+    let mut min_safety_factor = 222208000_i64;
+    let mut min_iter = 0;
+    for i in 0..20000 {
+        for robot in robots.iter_mut() {
+            robot.do_move();
+        }
+        let mut robots_in_quads = HashMap::<i32, i32>::new();
+        for robot in robots.iter() {
+            *robots_in_quads.entry(robot.get_quad()).or_insert(0) += 1;
+        }
+
+        let mut safety_factor = 1_i64;
+        for quad_count in robots_in_quads.iter().filter(|(quad, _)| quad >= &&0) {
+            safety_factor *= *quad_count.1 as i64;
+        }
+
+        if safety_factor < min_safety_factor {
+            min_safety_factor = safety_factor;
+            min_iter = i + 1;
+            println!("safety factor: {} in iter {}", min_safety_factor, min_iter);
+        }
+    }
 }
 fn main() {
     part1();
