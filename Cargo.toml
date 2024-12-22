@@ -20,5 +20,6 @@ members = [
 "day13",
 "day00",
 "day14",
+"day15",
 # placeholder
 ]
