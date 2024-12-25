@@ -115,6 +115,11 @@ where
 
         while let Some(QueueEntry { distance, node_id }) = q.pop() {
             let u_node_id = node_id;
+
+            if end.is_some_and(|end_node| *end_node == u_node_id) {
+                return d_res;
+            }
+
             let dist_u = d_res.dist.get(&u_node_id).unwrap().clone();
 
             if distance.0 > dist_u {
@@ -348,13 +353,15 @@ mod tests {
             (5, 4, 1),
             (2, 5, 1), // Cross connection
             (3, 4, 1), // Alternative from 3
+            (2, 6, 2), // add another node for testing
+            (4, 7, 5), // add another node to check stopping early
         ]);
 
         println!("{}", visualize_graph(&graph));
 
         let start = TestNodeId(0);
         let end = TestNodeId(4);
-        let result = graph.dijkstra(&start, Some(&end));
+        let result = graph.dijkstra(&start, None);
 
         // Multiple paths exist to node 4:
         // 1. 0->1->3->4 (cost: 1+2+1 = 4)
@@ -374,5 +381,20 @@ mod tests {
         // 3. From 5, the edge to 4 costs 1
         let path = get_path(&result, &end);
         assert_eq!(path, vec![TestNodeId(0), TestNodeId(5), TestNodeId(4)]);
+
+        // check other  paths as well
+        let path_to_3 = get_path(&result, &TestNodeId(3));
+        assert_eq!(path_to_3, vec![TestNodeId(0), TestNodeId(1), TestNodeId(3)]);
+
+        let path_to_6 = get_path(&result, &TestNodeId(6));
+        assert_eq!(path_to_6, vec![TestNodeId(0), TestNodeId(2), TestNodeId(6)]);
+
+        let path_to_7 = get_path(&result, &TestNodeId(7));
+        assert_eq!(path_to_7, vec![
+            TestNodeId(0),
+            TestNodeId(5),
+            TestNodeId(4),
+            TestNodeId(7)
+        ]);
     }
 }

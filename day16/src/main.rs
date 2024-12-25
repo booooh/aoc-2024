@@ -1,3 +1,12 @@
+use std::{
+    cmp::Reverse,
+    collections::{BinaryHeap, HashMap, HashSet},
+    fmt::Debug,
+    hash::Hash,
+    iter::Rev,
+    usize,
+};
+
 use common::read_lines;
 
 fn part1() {
