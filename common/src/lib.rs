@@ -29,8 +29,8 @@ pub struct Edge<T>
 where
     T: Node,
 {
-    node: T::NodeIdType,
-    cost: usize, // must be positive
+    pub node: T::NodeIdType,
+    pub cost: usize, // must be positive
 }
 
 pub trait Graphable {
@@ -62,8 +62,8 @@ pub struct Dijkstra<NodeId>
 where
     NodeId: IdTrait,
 {
-    dist: HashMap<NodeId, usize>,
-    prev: HashMap<NodeId, Option<NodeId>>,
+    pub dist: HashMap<NodeId, usize>,
+    pub prev: HashMap<NodeId, Option<NodeId>>,
 }
 
 impl<T> Graph<T>
@@ -149,6 +149,53 @@ where
     }
 }
 
+pub fn visualize_graph<T>(graph: &Graph<T>) -> String
+where
+    T: Node,
+    T::NodeIdType: std::fmt::Display,
+{
+    let mut mermaid = String::from("```mermaid\ngraph LR\n");
+
+    // Add all edges with their weights
+    for (from_id, edges) in &graph.adjacency_list {
+        for edge in edges {
+            // Use Mermaid's edge label syntax: A---|text|B
+            mermaid.push_str(&format!(
+                "    {from_id}---|{edge_cost}|{to_id}\n",
+                from_id = from_id,
+                edge_cost = edge.cost,
+                to_id = edge.node
+            ));
+        }
+    }
+
+    // Add any isolated nodes (nodes with no edges)
+    for node_id in graph.nodes.keys() {
+        if !graph.adjacency_list.contains_key(node_id) {
+            mermaid.push_str(&format!("    {node_id}((Node {node_id}))\n"));
+        }
+    }
+
+    mermaid.push_str("```");
+    mermaid
+}
+
+pub fn get_path<T>(dijkstra: &Dijkstra<T::NodeIdType>, end: &T::NodeIdType) -> Vec<T::NodeIdType>
+where
+    T: Node,
+{
+    let mut path = Vec::new();
+    let mut current = Some(end.clone());
+
+    while let Some(node) = current {
+        path.push(node.clone());
+        current = dijkstra.prev.get(&node).unwrap().clone();
+    }
+
+    path.reverse();
+    path
+}
+
 #[cfg(test)]
 mod tests {
     use std::{collections::HashSet, fmt::Display};
@@ -214,19 +261,6 @@ mod tests {
         Graph::new(nodes, adjacency_list)
     }
 
-    fn get_path(dijkstra: &Dijkstra<TestNodeId>, end: &TestNodeId) -> Vec<TestNodeId> {
-        let mut path = Vec::new();
-        let mut current = Some(end.clone());
-
-        while let Some(node) = current {
-            path.push(node.clone());
-            current = dijkstra.prev.get(&node).unwrap().clone();
-        }
-
-        path.reverse();
-        path
-    }
-
     #[test]
     fn test_simple_path() {
         let graph = create_test_graph(vec![(0, 1, 4), (1, 2, 3), (0, 2, 8)]);
@@ -236,7 +270,7 @@ mod tests {
         let result = graph.dijkstra(&start, Some(&end));
 
         assert_eq!(*result.dist.get(&end).unwrap(), 7); // 0->1->2 (4+3)
-        let path = get_path(&result, &end);
+        let path = get_path::<TestNode>(&result, &end);
         assert_eq!(path, vec![TestNodeId(0), TestNodeId(1), TestNodeId(2)]);
     }
 
@@ -284,7 +318,7 @@ mod tests {
         let result = graph.dijkstra(&start, Some(&end));
 
         assert_eq!(*result.dist.get(&end).unwrap(), 4); // 0->1->3 (2+2)
-        let path = get_path(&result, &end);
+        let path = get_path::<TestNode>(&result, &end);
         assert_eq!(
             HashSet::<TestNodeId>::from_iter(path),
             HashSet::from_iter(vec![TestNodeId(0), TestNodeId(1), TestNodeId(3)])
@@ -300,37 +334,6 @@ mod tests {
         let result = graph.dijkstra(&start, Some(&end));
 
         assert_eq!(*result.dist.get(&end).unwrap(), 2);
-    }
-
-    pub fn visualize_graph<T>(graph: &Graph<T>) -> String
-    where
-        T: Node,
-        T::NodeIdType: std::fmt::Display,
-    {
-        let mut mermaid = String::from("```mermaid\ngraph LR\n");
-
-        // Add all edges with their weights
-        for (from_id, edges) in &graph.adjacency_list {
-            for edge in edges {
-                // Use Mermaid's edge label syntax: A---|text|B
-                mermaid.push_str(&format!(
-                    "    {from_id}---|{edge_cost}|{to_id}\n",
-                    from_id = from_id,
-                    edge_cost = edge.cost,
-                    to_id = edge.node
-                ));
-            }
-        }
-
-        // Add any isolated nodes (nodes with no edges)
-        for node_id in graph.nodes.keys() {
-            if !graph.adjacency_list.contains_key(node_id) {
-                mermaid.push_str(&format!("    {node_id}((Node {node_id}))\n"));
-            }
-        }
-
-        mermaid.push_str("```");
-        mermaid
     }
 
     #[test]
@@ -379,17 +382,17 @@ mod tests {
         //    - Edge to 5 costs 2
         // 2. After visiting node 1, the next shortest edge is to 5 (cost 2)
         // 3. From 5, the edge to 4 costs 1
-        let path = get_path(&result, &end);
+        let path = get_path::<TestNode>(&result, &end);
         assert_eq!(path, vec![TestNodeId(0), TestNodeId(5), TestNodeId(4)]);
 
         // check other  paths as well
-        let path_to_3 = get_path(&result, &TestNodeId(3));
+        let path_to_3 = get_path::<TestNode>(&result, &TestNodeId(3));
         assert_eq!(path_to_3, vec![TestNodeId(0), TestNodeId(1), TestNodeId(3)]);
 
-        let path_to_6 = get_path(&result, &TestNodeId(6));
+        let path_to_6 = get_path::<TestNode>(&result, &TestNodeId(6));
         assert_eq!(path_to_6, vec![TestNodeId(0), TestNodeId(2), TestNodeId(6)]);
 
-        let path_to_7 = get_path(&result, &TestNodeId(7));
+        let path_to_7 = get_path::<TestNode>(&result, &TestNodeId(7));
         assert_eq!(path_to_7, vec![
             TestNodeId(0),
             TestNodeId(5),
